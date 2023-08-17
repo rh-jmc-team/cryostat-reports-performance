@@ -15,7 +15,10 @@ scenario:
           # Here we specify a multi-line string. For more info about multiline strings,
           # compacting/chopping of newlines etc. please check out https://yaml-multiline.info/
           body:
-            form:
+            form: # FIXME this doesn't work. cryostat-reports requires clients to POST /report ,
+              # and the POST body must be a multipart/form-data where the recording file
+              # contents are embedded in a form attribute called "file". Hyperfoil only allows
+              # specifying application/x-www-form-urlencoded forms which cannot embed files.
               file:
                 fromFile: "dummy_recording.jfr"
           # Handler processes the response
