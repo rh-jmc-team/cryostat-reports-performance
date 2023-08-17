@@ -1,0 +1,32 @@
+name: cryostat-reports-hyperfoil
+http:
+  host: http://localhost:8080
+  sharedConnections: 1 # allow only one connection at a time
+  maxHttp2Streams: 1 # Force sequential HOL blocking
+  pipeliningLimit: 1 # only for http 1.1
+usersPerSec: 1
+duration: 5 # this is how long the benchmark runs
+scenario:
+  - test:
+      - httpRequest:
+          POST: /report
+          headers:
+            accept: application/json
+          # Here we specify a multi-line string. For more info about multiline strings,
+          # compacting/chopping of newlines etc. please check out https://yaml-multiline.info/
+          body:
+            form:
+              file:
+                fromFile: "dummy_recording.jfr"
+          # Handler processes the response
+          handler:
+            # We'll check that the response was successful (status 200-299)
+            status:
+              range: 2xx
+            # When the response is fully processed we'll set variable `completed`
+            # in the session.
+            onCompletion:
+              set: completed <- yes
+          sync: true
+      # We'll wait for the `completed` var to be set in this step, though.
+      - awaitVar: completed
